@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 럭키 넘버 카지노 EX</title>
+    <title>🎰 럭키 넘버 카지노 ONLINE</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background-color: #222; color: white; }
         #game-container { margin-top: 20px; }
@@ -18,63 +18,52 @@
 </head>
 <body>
 
-<h1>🎰 럭키 넘버 카지노 EX 🎰</h1>
+<h1>🎰 럭키 넘버 카지노 ONLINE 🎰</h1>
+
+<p id="status">🔄 대기 중...</p>
 
 <div id="game-container">
-    <div class="player" id="player1">
-        <h2>🃏 플레이어 1</h2>
-        <p class="chips">칩: <span id="chips1">10000</span></p>
-        <p class="cards">🂠 🂠</p>
-        <input type="number" id="bet1" placeholder="베팅 칩 (100~5000)" min="100" max="5000">
+    <div class="player" id="player">
+        <h2>🃏 내 카드</h2>
+        <p class="chips">칩: <span id="chips">10000</span></p>
+        <p class="cards" id="myCards">🂠 🂠</p>
+        <input type="number" id="bet" placeholder="베팅 칩 (100~5000)" min="100" max="5000">
         <br>
-        <button class="special" onclick="useCard(1, 'swap')">🔄 숫자 바꾸기</button>
-        <button class="special" onclick="useCard(1, 'scan')">👀 상대 카드 보기</button>
-        <button class="special" onclick="useCard(1, 'joker')">🃏 조커 카드</button>
-        <button class="special" onclick="useCard(1, 'double')">💰 더블다운</button>
+        <button onclick="placeBet()">🎲 베팅하기!</button>
     </div>
-
-    <div class="player" id="player2">
-        <h2>🃏 플레이어 2</h2>
-        <p class="chips">칩: <span id="chips2">10000</span></p>
-        <p class="cards">🂠 🂠</p>
-        <input type="number" id="bet2" placeholder="베팅 칩 (100~5000)" min="100" max="5000">
-        <br>
-        <button class="special" onclick="useCard(2, 'swap')">🔄 숫자 바꾸기</button>
-        <button class="special" onclick="useCard(2, 'scan')">👀 상대 카드 보기</button>
-        <button class="special" onclick="useCard(2, 'joker')">🃏 조커 카드</button>
-        <button class="special" onclick="useCard(2, 'double')">💰 더블다운</button>
-    </div>
-
-    <br>
-    <button onclick="playRound()">🎲 베팅하기!</button>
-
-    <h2 id="result"></h2>
 </div>
 
 <script>
-    let chips1 = 10000, chips2 = 10000;
-    let deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    const socket = new WebSocket("ws://YOUR_SERVER_IP:3000"); // 서버 주소 변경!
 
-    function drawCard() {
-        return deck[Math.floor(Math.random() * deck.length)];
-    }
+    let myCards = [];
+    let myChips = 10000;
 
-    function playRound() {
-        let bet1 = parseInt(document.getElementById("bet1").value);
-        let bet2 = parseInt(document.getElementById("bet2").value);
+    socket.onopen = function() {
+        console.log("서버에 연결됨");
+        socket.send(JSON.stringify({ type: "join" }));
+    };
 
-        if (isNaN(bet1) || isNaN(bet2) || bet1 < 100 || bet2 < 100) {
-            alert("100~5000 사이의 베팅 금액을 입력하세요!");
+    socket.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "assignCards") {
+            myCards = data.cards;
+            document.getElementById("myCards").innerText = `🃏 ${myCards[0]}, ${myCards[1]}`;
+        } else if (data.type === "updateChips") {
+            myChips = data.chips;
+            document.getElementById("chips").innerText = myChips;
+        }
+    };
+
+    function placeBet() {
+        let betAmount = parseInt(document.getElementById("bet").value);
+        if (isNaN(betAmount) || betAmount < 100 || betAmount > myChips) {
+            alert("올바른 베팅 금액을 입력하세요!");
             return;
         }
 
-        let card1a = drawCard(), card1b = drawCard();
-        let card2a = drawCard(), card2b = drawCard();
-        let sum1 = card1a + card1b, sum2 = card2a + card2b;
-
-        let winner = sum1 > sum2 ? "플레이어 1 승리!" : (sum2 > sum1 ? "플레이어 2 승리!" : "무승부!");
-
-        document.getElementById("result").innerText = `🃏 P1: ${card1a}, ${card1b} | P2: ${card2a}, ${card2b} → ${winner}`;
+        socket.send(JSON.stringify({ type: "bet", amount: betAmount }));
     }
 </script>
 
