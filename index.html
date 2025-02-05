@@ -13,7 +13,6 @@
         input { margin: 5px; padding: 5px; font-size: 16px; width: 100px; }
         button { margin-top: 10px; padding: 8px 15px; font-size: 16px; background: #ff9800; color: white; border: none; cursor: pointer; border-radius: 5px; }
         button:hover { background: #f57c00; }
-        .special { background: #673ab7; }
     </style>
 </head>
 <body>
@@ -34,7 +33,7 @@
 </div>
 
 <script>
-    const socket = new WebSocket("ws://YOUR_SERVER_IP:3000"); // 서버 주소 변경!
+    const socket = new WebSocket("wss://yourappname.onrender.com"); // 서버 주소 변경
 
     let myCards = [];
     let myChips = 10000;
@@ -49,7 +48,7 @@
 
         if (data.type === "assignCards") {
             myCards = data.cards;
-            document.getElementById("myCards").innerText = `🃏 ${myCards[0]}, ${myCards[1]}`;
+            document.getElementById("myCards").innerText = `🃏 ${myCards[0]}, ${myCards[1]}`; // 내 카드 표시
         } else if (data.type === "updateChips") {
             myChips = data.chips;
             document.getElementById("chips").innerText = myChips;
