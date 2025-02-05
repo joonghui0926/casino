@@ -33,8 +33,7 @@
 </div>
 
 <script>
-    const socket = new WebSocket("wss://casino-server.onrender.com"); // Render에서 제공한 서버 주소 입력!
-
+    const socket = new WebSocket("wss://yourappname.onrender.com"); // 서버 주소 변경
 
     let myCards = [];
     let myChips = 10000;
@@ -49,10 +48,16 @@
 
         if (data.type === "assignCards") {
             myCards = data.cards;
-            document.getElementById("myCards").innerText = `🃏 ${myCards[0]} | ${myCards[1]}`; // 내 카드 표시
+            document.getElementById("myCards").innerText = `🃏 ${myCards[0]} | ${myCards[1]}`;
         } else if (data.type === "updateChips") {
             myChips = data.chips;
             document.getElementById("chips").innerText = myChips;
+        } else if (data.type === "waiting") {
+            document.getElementById("status").innerText = "🕒 상대방을 기다리는 중...";
+        } else if (data.type === "gameStart") {
+            document.getElementById("status").innerText = "🚀 게임 시작!";
+        } else if (data.type === "gameResult") {
+            document.getElementById("status").innerText = `🏆 결과: ${data.message}`;
         }
     };
 
