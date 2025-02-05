@@ -1,27 +1,9 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 럭키 넘버 카지노 ONLINE</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #222; color: white; }
-        #game-container { margin-top: 20px; }
-        .player { margin: 10px; padding: 10px; border: 2px solid #fff; display: inline-block; width: 40%; background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-        .chips { font-size: 20px; font-weight: bold; }
-        .cards { font-size: 24px; margin-top: 10px; }
-        input { margin: 5px; padding: 5px; font-size: 16px; width: 100px; }
-        button { margin-top: 10px; padding: 8px 15px; font-size: 16px; background: #ff9800; color: white; border: none; cursor: pointer; border-radius: 5px; }
-        button:hover { background: #f57c00; }
-    </style>
-</head>
-<body>
-
 <h1>🎰 럭키 넘버 카지노 ONLINE 🎰</h1>
 
 <p id="status">🔄 대기 중...</p>
 
 <div id="game-container">
+    <button id="startGameBtn" onclick="startGame()" style="display: none;">🚀 게임 시작!</button>
     <div class="player" id="player">
         <h2>🃏 내 카드</h2>
         <p class="chips">칩: <span id="chips">10000</span></p>
@@ -35,42 +17,28 @@
 <script>
     const socket = new WebSocket("wss://yourappname.onrender.com"); // 서버 주소 변경
 
-    let myCards = [];
-    let myChips = 10000;
-
     socket.onopen = function() {
         console.log("서버에 연결됨");
-        socket.send(JSON.stringify({ type: "join" }));
+        socket.send(JSON.stringify({ type: "joinGame" }));  // 서버에 게임 참가 요청
     };
 
     socket.onmessage = function(event) {
         const data = JSON.parse(event.data);
 
         if (data.type === "assignCards") {
-            myCards = data.cards;
-            document.getElementById("myCards").innerText = `🃏 ${myCards[0]} | ${myCards[1]}`;
-        } else if (data.type === "updateChips") {
-            myChips = data.chips;
-            document.getElementById("chips").innerText = myChips;
+            document.getElementById("myCards").innerText = `🃏 ${data.cards[0]} | ${data.cards[1]}`;
         } else if (data.type === "waiting") {
             document.getElementById("status").innerText = "🕒 상대방을 기다리는 중...";
+        } else if (data.type === "readyToStart") {
+            document.getElementById("status").innerText = "✅ 두 명이 접속했습니다!";
+            document.getElementById("startGameBtn").style.display = "block";  // 게임 시작 버튼 활성화
         } else if (data.type === "gameStart") {
             document.getElementById("status").innerText = "🚀 게임 시작!";
-        } else if (data.type === "gameResult") {
-            document.getElementById("status").innerText = `🏆 결과: ${data.message}`;
+            document.getElementById("startGameBtn").style.display = "none";  // 시작 버튼 숨김
         }
     };
 
-    function placeBet() {
-        let betAmount = parseInt(document.getElementById("bet").value);
-        if (isNaN(betAmount) || betAmount < 100 || betAmount > myChips) {
-            alert("올바른 베팅 금액을 입력하세요!");
-            return;
-        }
-
-        socket.send(JSON.stringify({ type: "bet", amount: betAmount }));
+    function startGame() {
+        socket.send(JSON.stringify({ type: "startGame" }));  // 서버에 게임 시작 요청
     }
 </script>
-
-</body>
-</html>
