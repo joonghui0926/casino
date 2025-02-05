@@ -25,7 +25,7 @@
     <div class="player" id="player">
         <h2>🃏 내 카드</h2>
         <p class="chips">칩: <span id="chips">10000</span></p>
-        <p class="cards" id="myCards">🂠 🂠</p>
+        <p class="cards" id="myCards">카드 대기 중...</p>
         <input type="number" id="bet" placeholder="베팅 칩 (100~5000)" min="100" max="5000">
         <br>
         <button onclick="placeBet()">🎲 베팅하기!</button>
@@ -33,7 +33,7 @@
 </div>
 
 <script>
-    const socket = new WebSocket("wss://yourappname.onrender.com"); // 서버 주소 변경
+    const socket = new WebSocket("wss://yourappname.onrender.com"); // 서버 주소 변경!
 
     let myCards = [];
     let myChips = 10000;
@@ -48,7 +48,7 @@
 
         if (data.type === "assignCards") {
             myCards = data.cards;
-            document.getElementById("myCards").innerText = `🃏 ${myCards[0]}, ${myCards[1]}`; // 내 카드 표시
+            document.getElementById("myCards").innerText = `🃏 ${myCards[0]} | ${myCards[1]}`; // 내 카드 표시
         } else if (data.type === "updateChips") {
             myChips = data.chips;
             document.getElementById("chips").innerText = myChips;
