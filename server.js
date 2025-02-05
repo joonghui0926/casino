@@ -15,7 +15,6 @@ wss.on("connection", function connection(ws) {
     players.push(ws);
     console.log(`플레이어 ${playerIndex + 1} 연결됨`);
 
-    // 카드 생성 (각 플레이어 개별 카드)
     let cards = [Math.floor(Math.random() * 13) + 1, Math.floor(Math.random() * 13) + 1];
     playerData[ws] = { cards, bet: 0 };
 
@@ -25,11 +24,7 @@ wss.on("connection", function connection(ws) {
         ws.send(JSON.stringify({ type: "waiting", message: "상대방을 기다리는 중..." }));
     } else if (players.length === 2) {
         console.log("게임 시작!");
-        players.forEach((player) => {
-            if (player.readyState === WebSocket.OPEN) {
-                player.send(JSON.stringify({ type: "gameStart", message: "게임이 시작되었습니다!" }));
-            }
-        });
+        startGame();
     }
 
     ws.on("message", function incoming(message) {
@@ -46,28 +41,7 @@ wss.on("connection", function connection(ws) {
                 }
             });
 
-            // 두 명 모두 베팅했는지 확인하고 승자 결정
-            if (players.length === 2 && playerData[players[0]].bet > 0 && playerData[players[1]].bet > 0) {
-                let sum1 = playerData[players[0]].cards[0] + playerData[players[0]].cards[1];
-                let sum2 = playerData[players[1]].cards[0] + playerData[players[1]].cards[1];
-
-                let winner;
-                if (sum1 > sum2) {
-                    winner = "플레이어 1 승리!";
-                } else if (sum2 > sum1) {
-                    winner = "플레이어 2 승리!";
-                } else {
-                    winner = "무승부!";
-                }
-
-                players.forEach((player) => {
-                    if (player.readyState === WebSocket.OPEN) {
-                        player.send(JSON.stringify({ type: "gameResult", message: winner }));
-                    }
-                });
-
-                console.log(winner);
-            }
+            checkWinner();
         }
     });
 
@@ -77,3 +51,37 @@ wss.on("connection", function connection(ws) {
         console.log(`플레이어 ${playerIndex + 1} 연결 종료`);
     });
 });
+
+// 게임 시작 함수
+function startGame() {
+    players.forEach((player) => {
+        if (player.readyState === WebSocket.OPEN) {
+            player.send(JSON.stringify({ type: "gameStart", message: "게임이 시작되었습니다!" }));
+        }
+    });
+}
+
+// 베팅이 완료되면 승자 판별
+function checkWinner() {
+    if (players.length === 2 && playerData[players[0]].bet > 0 && playerData[players[1]].bet > 0) {
+        let sum1 = playerData[players[0]].cards[0] + playerData[players[0]].cards[1];
+        let sum2 = playerData[players[1]].cards[0] + playerData[players[1]].cards[1];
+
+        let winner;
+        if (sum1 > sum2) {
+            winner = "플레이어 1 승리!";
+        } else if (sum2 > sum1) {
+            winner = "플레이어 2 승리!";
+        } else {
+            winner = "무승부!";
+        }
+
+        players.forEach((player) => {
+            if (player.readyState === WebSocket.OPEN) {
+                player.send(JSON.stringify({ type: "gameResult", message: winner }));
+            }
+        });
+
+        console.log(winner);
+    }
+}
