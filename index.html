@@ -1,3 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 럭키 넘버 카지노 ONLINE</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #222; color: white; }
+        #game-container { margin-top: 20px; }
+        .player { margin: 10px; padding: 10px; border: 2px solid #fff; display: inline-block; width: 40%; background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .chips { font-size: 20px; font-weight: bold; }
+        .cards { font-size: 24px; margin-top: 10px; }
+        input { margin: 5px; padding: 5px; font-size: 16px; width: 100px; }
+        button { margin-top: 10px; padding: 8px 15px; font-size: 16px; background: #ff9800; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #f57c00; }
+    </style>
+</head>
+<body>
+
 <h1>🎰 럭키 넘버 카지노 ONLINE 🎰</h1>
 
 <p id="status">🔄 대기 중...</p>
@@ -35,10 +54,25 @@
         } else if (data.type === "gameStart") {
             document.getElementById("status").innerText = "🚀 게임 시작!";
             document.getElementById("startGameBtn").style.display = "none";  // 시작 버튼 숨김
+        } else if (data.type === "gameResult") {
+            document.getElementById("status").innerText = `🏆 결과: ${data.message}`;
         }
     };
 
     function startGame() {
         socket.send(JSON.stringify({ type: "startGame" }));  // 서버에 게임 시작 요청
     }
+
+    function placeBet() {
+        let betAmount = parseInt(document.getElementById("bet").value);
+        if (isNaN(betAmount) || betAmount < 100 || betAmount > 5000) {
+            alert("올바른 베팅 금액을 입력하세요!");
+            return;
+        }
+
+        socket.send(JSON.stringify({ type: "bet", amount: betAmount }));
+    }
 </script>
+
+</body>
+</html>
